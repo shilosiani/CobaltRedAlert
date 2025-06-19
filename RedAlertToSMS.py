@@ -38,11 +38,6 @@ def send_sms(message_text):
                         "YOUR_CL_ID"
                 ]
             },
-            "phone": [
-        {
-          "$": {
-            "id": "external id1"
-          },
             "message": message_text
         }
     }
@@ -94,7 +89,7 @@ def check_alerts():
             clean_title = re.sub(r'[\r\n]+', ' ', title).strip()
             clean_desc = re.sub(r'[\r\n]+', ' ', desc).strip()
 
-            subject = f" העורף במצפה רמון: {clean_title} \nהנחיה:  {clean_desc} \n *נשלח בשעה {now_str}*"
+            subject = f" התרעת פיקוד העורף: {clean_title}. \nהנחיה:  {clean_desc} \n *נשלח בשעה {now_str}*"
 
             send_sms(subject)
             return "alert"
@@ -112,10 +107,11 @@ def main():
         alert = check_alerts()
         if alert and alert != last_alert:
             print(f"התראה חדשה: {alert}")
-            last_alert = alert
+            print(f"30 secs: {alert}")
+            time.sleep(100)
         else:
             print("אין התראה חדשה.")
-        time.sleep(30)
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
