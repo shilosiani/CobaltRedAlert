@@ -142,6 +142,8 @@ class RedAlertMonitor:
     
     def check_alerts(self):
         try:
+            # https://www.oref.org.il/WarningMessages/History/AlertsHistory.json
+            # https://www.oref.org.il/WarningMessages/alert/alerts.json?v=1
             url = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
             headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(url, headers=headers, timeout=10)
@@ -196,7 +198,7 @@ class RedAlertMonitor:
                 if self.check_alerts():
                     time.sleep(25)
                 else:
-                    time.sleep(5)
+                    time.sleep(3)
         except KeyboardInterrupt:
             print("\nStopped")
         finally:
