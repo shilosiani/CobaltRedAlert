@@ -98,7 +98,7 @@ class RedAlertMonitor:
                 while pygame.mixer.music.get_busy():
                     pygame.time.wait(100)
                 if i < 2:
-                    time.sleep(0.5)
+                    time.sleep(0.3)
                     
         except Exception as e:
             print(f"Sound error: {e}")
@@ -191,7 +191,7 @@ class RedAlertMonitor:
         try:
             while True:
                 if self.check_alerts():
-                    time.sleep(30)
+                    time.sleep(45)
                 else:
                     time.sleep(5)
         except KeyboardInterrupt:
