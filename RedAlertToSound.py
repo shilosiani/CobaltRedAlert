@@ -150,7 +150,10 @@ class RedAlertMonitor:
             # "test-for-debug"
             # text = open("Alerts.json", "r", encoding="utf-8").read()
 
+            # print(response.content)
+
             if not text.strip() or not (text.startswith('[') or text.startswith('{')):
+                print("🟩 no alert ...")
                 return False
             
             data = json.loads(text)
@@ -191,7 +194,7 @@ class RedAlertMonitor:
         try:
             while True:
                 if self.check_alerts():
-                    time.sleep(45)
+                    time.sleep(25)
                 else:
                     time.sleep(5)
         except KeyboardInterrupt:
