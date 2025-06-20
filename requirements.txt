@@ -1,3 +1,4 @@
 requests
 pytz
 pygame
+edge-tts
