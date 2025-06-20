@@ -145,10 +145,10 @@ class RedAlertMonitor:
             url = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
             headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(url, headers=headers, timeout=10)
-            # text = response.content.decode('utf-8-sig')
+            text = response.content.decode('utf-8-sig')
 
             # "test-for-debug"
-            text = open("Alerts.json", "r", encoding="utf-8").read()
+            # text = open("Alerts.json", "r", encoding="utf-8").read()
 
             if not text.strip() or not (text.startswith('[') or text.startswith('{')):
                 return False
