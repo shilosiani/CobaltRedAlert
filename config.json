@@ -1,14 +1,11 @@
 {
   "monitored_cities": [
-    "בני ברק",
-    "תל אביב - מרכז העיר",
-    "ירושלים",
-    "הוד השרון"
+    "בני ברק"
   ],
-  "tts_voice": "he-IL-AvriNeural",
+  "tts_voice": "he-IL-HilaNeural",
   "tts_enabled": true,
-  "tts_speed": 1.2,
-  "random_voice": true,
+  "tts_speed": 2.0,
+  "random_voice": false,
   "sound_enabled": true,
   "volume": 0.18,
   "alert_sound_file": "",
