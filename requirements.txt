@@ -1,4 +1,3 @@
 requests
 pytz
 pygame
-# plyer
