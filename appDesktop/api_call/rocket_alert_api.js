@@ -19,7 +19,7 @@ class RocketAlertAPI {
     this.BASE_URL = 'https://agg.rocketalert.live/api';
     this.V1_URL = `${this.BASE_URL}/v1`;
     this.V2_URL = `${this.BASE_URL}/v2`;
-    
+
     // Alert type constants
     this.ALERT_TYPES = {
       ALL: 0,
@@ -27,7 +27,7 @@ class RocketAlertAPI {
       UAV: 6, // Unmanned Aerial Vehicle (drone)
       KEEP_ALIVE: 'KEEP_ALIVE'
     };
-    
+
     this.MAX_RECENT_ALERTS = 30;
   }
 
@@ -38,7 +38,7 @@ class RocketAlertAPI {
     try {
       const queryString = new URLSearchParams(params).toString();
       const fullUrl = queryString ? `${url}?${queryString}` : url;
-      
+
       // Add browser headers to mimic a real browser request
       const headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -54,20 +54,20 @@ class RocketAlertAPI {
         'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
       };
-      
+
       const response = await fetch(fullUrl, { headers });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       // Check if API returned an error
       if (data.success === false) {
         console.warn(`API returned error for ${url}:`, data.incidentId || 'Unknown error');
         console.warn('This might be a temporary server issue or rate limiting');
       }
-      
+
       return data;
     } catch (error) {
       console.error('API Request failed:', error);
@@ -89,8 +89,8 @@ class RocketAlertAPI {
     if (response.payload && Array.isArray(response.payload)) {
       response.payload.forEach(dateEntry => {
         if (dateEntry.alerts) {
-          dateEntry.alerts = dateEntry.alerts.filter(alert => 
-            alert.alertTypeId === this.ALERT_TYPES.ROCKETS || 
+          dateEntry.alerts = dateEntry.alerts.filter(alert =>
+            alert.alertTypeId === this.ALERT_TYPES.ROCKETS ||
             alert.alertTypeId === this.ALERT_TYPES.UAV
           );
         }
@@ -125,7 +125,7 @@ class RocketAlertAPI {
   async getMostRecentAlerts(from, to) {
     try {
       const response = await this.getDetailedAlerts(from, to);
-      
+
       if (!response.success || response.payload.length === 0) {
         return [];
       }
@@ -224,7 +224,7 @@ class RocketAlertAPI {
   async getRealTimeAlertCache() {
     try {
       const response = await this.makeRequest(`${this.V2_URL}/alerts/real-time/cached`);
-      
+
       if (!response.success) {
         return { alerts: [], count: 0 };
       }
@@ -266,7 +266,7 @@ class RocketAlertAPI {
    */
   createRealTimeConnection(onAlert, onError) {
     let EventSourceConstructor = EventSource;
-    
+
     // Handle Node.js environment
     if (typeof EventSource === 'undefined' || !EventSource) {
       try {
@@ -282,7 +282,7 @@ class RocketAlertAPI {
     }
 
     const eventSource = new EventSourceConstructor(`${this.V2_URL}/alerts/real-time`);
-    
+
     eventSource.onopen = () => {
       console.log('Real-time connection opened');
     };
@@ -290,7 +290,7 @@ class RocketAlertAPI {
     eventSource.addEventListener('message', (event) => {
       try {
         const data = JSON.parse(event.data);
-        
+
         // Skip keep-alive messages
         if (data.alerts && data.alerts[0] && data.alerts[0].name === this.ALERT_TYPES.KEEP_ALIVE) {
           return;
@@ -345,70 +345,76 @@ async function examples() {
     console.log('=== Testing Rocket Alert API ===\n');
 
     // Get most recent alert
-    console.log('1. Most recent alert:');
-    const mostRecent = await api.getMostRecentAlert();
-    console.log(JSON.stringify(mostRecent, null, 2));
-    console.log();
+    // console.log('1. Most recent alert:');
+    // const mostRecent = await api.getMostRecentAlert();
+    // console.log(JSON.stringify(mostRecent, null, 2));
+    // console.log();
 
-    // Get alerts from last 24 hours
-    console.log('2. Alerts from last 24 hours:');
-    const recentAlerts = await api.getMostRecentAlerts(api.get24HoursAgo(), api.getNow());
-    console.log(`Found ${recentAlerts.length} recent alerts`);
-    if (recentAlerts.length > 0) {
-      console.log('First alert:', JSON.stringify(recentAlerts[0], null, 2));
-    }
-    console.log();
 
-    // Get daily statistics for last 7 days (more reasonable range)
-    console.log('3. Daily statistics for last 7 days:');
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const dailyStats = await api.getTotalAlertsByDay(weekAgo, api.getNow());
-    console.log(JSON.stringify(dailyStats, null, 2));
-    console.log();
 
-    // Get total alerts for a shorter period
-    console.log('4. Total alerts for last 7 days:');
-    const totalAlerts = await api.getTotalAlerts(weekAgo, api.getNow());
-    console.log(JSON.stringify(totalAlerts, null, 2));
-    console.log();
+    // // Get alerts from last 24 hours
+    // console.log('2. Alerts from last 24 hours:');
+    // const recentAlerts = await api.getMostRecentAlerts(api.get24HoursAgo(), api.getNow());
+    // console.log(`Found ${recentAlerts.length} recent alerts`);
+    // if (recentAlerts.length > 0) {
+    //   console.log('First alert:', JSON.stringify(recentAlerts[0], null, 2));
+    // }
+    // console.log();
 
-    // Get most targeted locations for last 30 days
-    console.log('5. Most targeted locations (last 30 days):');
-    const monthAgo = new Date();
-    monthAgo.setDate(monthAgo.getDate() - 30);
-    const targetedLocations = await api.getMostTargetedLocations(monthAgo, api.getNow(), 5);
-    console.log(JSON.stringify(targetedLocations, null, 2));
-    console.log();
 
-    // Get real-time cached alerts
-    console.log('6. Real-time cached alerts:');
-    const cachedAlerts = await api.getRealTimeAlertCache();
-    console.log(JSON.stringify(cachedAlerts, null, 2));
-    console.log();
 
-    // Setup real-time connection (only if EventSource is available)
-    console.log('7. Testing real-time connection:');
-    const eventSource = api.createRealTimeConnection(
-      (alerts) => {
-        console.log('📢 New real-time alerts received:', alerts.length);
-        alerts.forEach(alert => {
-          console.log(`   - ${alert.name} (${alert.englishName}) at ${alert.timeStamp}`);
-        });
-      },
-      (error) => {
-        console.error('❌ Real-time connection error:', error.message);
-      }
-    );
 
-    if (eventSource) {
-      console.log('✅ Real-time connection established');
-      // Close connection after 10 seconds
-      setTimeout(() => {
-        eventSource.close();
-        console.log('🔌 Real-time connection closed');
-      }, 10000);
-    }
+    
+    // // Get daily statistics for last 7 days (more reasonable range)
+    // console.log('3. Daily statistics for last 7 days:');
+    // const weekAgo = new Date();
+    // weekAgo.setDate(weekAgo.getDate() - 7);
+    // const dailyStats = await api.getTotalAlertsByDay(weekAgo, api.getNow());
+    // console.log(JSON.stringify(dailyStats, null, 2));
+    // console.log();
+
+    // // Get total alerts for a shorter period
+    // console.log('4. Total alerts for last 7 days:');
+    // const totalAlerts = await api.getTotalAlerts(weekAgo, api.getNow());
+    // console.log(JSON.stringify(totalAlerts, null, 2));
+    // console.log();
+
+    // // Get most targeted locations for last 30 days
+    // console.log('5. Most targeted locations (last 30 days):');
+    // const monthAgo = new Date();
+    // monthAgo.setDate(monthAgo.getDate() - 30);
+    // const targetedLocations = await api.getMostTargetedLocations(monthAgo, api.getNow(), 5);
+    // console.log(JSON.stringify(targetedLocations, null, 2));
+    // console.log();
+
+    // // Get real-time cached alerts
+    // console.log('6. Real-time cached alerts:');
+    // const cachedAlerts = await api.getRealTimeAlertCache();
+    // console.log(JSON.stringify(cachedAlerts, null, 2));
+    // console.log();
+
+    // // Setup real-time connection (only if EventSource is available)
+    // console.log('7. Testing real-time connection:');
+    // const eventSource = api.createRealTimeConnection(
+    //   (alerts) => {
+    //     console.log('📢 New real-time alerts received:', alerts.length);
+    //     alerts.forEach(alert => {
+    //       console.log(`   - ${alert.name} (${alert.englishName}) at ${alert.timeStamp}`);
+    //     });
+    //   },
+    //   (error) => {
+    //     console.error('❌ Real-time connection error:', error.message);
+    //   }
+    // );
+
+    // if (eventSource) {
+    //   console.log('✅ Real-time connection established');
+    //   // Close connection after 10 seconds
+    //   setTimeout(() => {
+    //     eventSource.close();
+    //     console.log('🔌 Real-time connection closed');
+    //   }, 10000);
+    // }
 
   } catch (error) {
     console.error('❌ Example error:', error.message);
