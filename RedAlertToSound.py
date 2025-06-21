@@ -142,8 +142,6 @@ class RedAlertMonitor:
     
     def check_alerts(self):
         try:
-            # https://www.oref.org.il/WarningMessages/History/AlertsHistory.json
-            # https://www.oref.org.il/WarningMessages/alert/alerts.json?v=1
             url = "https://www.oref.org.il/WarningMessages/alert/alerts.json"
             headers = {"User-Agent": "Mozilla/5.0"}
             response = requests.get(url, headers=headers, timeout=10)
