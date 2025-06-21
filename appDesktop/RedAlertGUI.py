@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
+from tkinter import ttk, messagebox
 import json
 import threading
 import time
@@ -9,9 +9,7 @@ import pygame
 import tempfile
 import os
 import asyncio
-import random
 import edge_tts
-from datetime import datetime
 
 
 class ModernRedAlertGUI:
