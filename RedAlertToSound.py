@@ -35,7 +35,6 @@ class RedAlertMonitor:
                 temp_file_path = os.path.join(temp_dir, f"tts_{idx}")
                 convert_any_text_to_audio(text, "he", temp_file_path)
                 
-                # The function adds .mp3 extension automatically
                 audio_file = f"{temp_file_path}.mp3"
                 if os.path.exists(audio_file):
                     audio_files.append(audio_file)
