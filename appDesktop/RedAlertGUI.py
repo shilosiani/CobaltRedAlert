@@ -27,15 +27,24 @@ class ModernRedAlertGUI:
 
     def setup_window(self):
         self.root.title("מערכת התרעות אזעקה אדומה")
-        self.root.geometry("800x600")
-        self.root.minsize(750, 550)
-        self.root.configure(bg="#f3f2f1")
+        self.root.geometry("900x700")
+        self.root.minsize(850, 650)
+        
+        # Fluent UI background with acrylic effect
+        self.root.configure(bg="#f9f9f9")
+        
+        # Try to set window transparency for acrylic effect
+        try:
+            self.root.attributes('-alpha', 0.98)
+            self.root.attributes('-transparentcolor', '')
+        except:
+            pass
 
         # Center window
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (800 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (600 // 2)
-        self.root.geometry(f"800x600+{x}+{y}")
+        x = (self.root.winfo_screenwidth() // 2) - (900 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (700 // 2)
+        self.root.geometry(f"900x700+{x}+{y}")
 
     def setup_variables(self):
         self.monitored_areas = {
@@ -48,7 +57,7 @@ class ModernRedAlertGUI:
         self.tts_voice = tk.StringVar(value="he-IL-HilaNeural")
         self.search_var = tk.StringVar()
         self.status_var = tk.StringVar(value="🟢 אין התרעות כרגע")
-        self.monitor_button_text = tk.StringVar(value="הפעל ניטור")
+        self.monitor_button_text = tk.StringVar(value="▶️ הפעל ניטור")
 
     def load_targets(self):
         try:
@@ -64,90 +73,165 @@ class ModernRedAlertGUI:
         style = ttk.Style()
         style.theme_use("default")
 
-        # Modern button style
+        # Fluent UI Color Palette
+        colors = {
+            'primary': '#0078d4',
+            'primary_hover': '#106ebe',
+            'primary_pressed': '#005a9e',
+            'danger': '#d13438',
+            'danger_hover': '#a4282c',
+            'success': '#107c10',
+            'background': '#ffffff',
+            'surface': '#fafafa',
+            'border': '#e1dfdd',
+            'text_primary': '#323130',
+            'text_secondary': '#605e5c',
+            'shadow': '#e8e8e8',
+            'acrylic': '#f8f8f8'
+        }
+
+        # Modern Primary Button with Fluent UI styling
         style.configure(
-            "Modern.TButton",
-            background="#0078d4",
+            "FluentPrimary.TButton",
+            background=colors['primary'],
             foreground="white",
             borderwidth=0,
             focuscolor="none",
-            padding=(20, 10),
+            padding=(24, 12),
+            font=('Segoe UI', 10, 'normal'),
+            relief="flat"
         )
         style.map(
-            "Modern.TButton", background=[("active", "#106ebe"), ("pressed", "#005a9e")]
+            "FluentPrimary.TButton", 
+            background=[("active", colors['primary_hover']), ("pressed", colors['primary_pressed'])],
+            relief=[("pressed", "flat"), ("!pressed", "flat")]
         )
 
-        # Stop button style
+        # Danger Button Style
         style.configure(
-            "Stop.TButton",
-            background="#d13438",
+            "FluentDanger.TButton",
+            background=colors['danger'],
             foreground="white",
             borderwidth=0,
             focuscolor="none",
-            padding=(20, 10),
+            padding=(24, 12),
+            font=('Segoe UI', 10, 'normal'),
+            relief="flat"
         )
         style.map(
-            "Stop.TButton", background=[("active", "#a4282c"), ("pressed", "#8b1e22")]
+            "FluentDanger.TButton", 
+            background=[("active", colors['danger_hover']), ("pressed", "#8b1e22")],
+            relief=[("pressed", "flat"), ("!pressed", "flat")]
         )
 
-        # Settings button style
+        # Secondary Button Style
         style.configure(
-            "Settings.TButton",
-            background="#6c757d",
-            foreground="white",
-            borderwidth=0,
+            "FluentSecondary.TButton",
+            background=colors['surface'],
+            foreground=colors['text_primary'],
+            borderwidth=1,
+            bordercolor=colors['border'],
             focuscolor="none",
-            padding=(10, 8),
+            padding=(20, 10),
+            font=('Segoe UI', 9, 'normal'),
+            relief="flat"
+        )
+        style.map(
+            "FluentSecondary.TButton", 
+            background=[("active", "#f3f2f1"), ("pressed", "#edebe9")],
+            bordercolor=[("active", colors['primary']), ("pressed", colors['primary'])],
+            relief=[("pressed", "flat"), ("!pressed", "flat")]
+        )
+
+        # Modern Combobox
+        style.configure(
+            "Fluent.TCombobox",
+            fieldbackground="white",
+            background="white",
+            borderwidth=1,
+            bordercolor=colors['border'],
+            focuscolor=colors['primary'],
+            font=('Segoe UI', 9, 'normal'),
+            padding=(12, 8)
+        )
+
+        # Entry style
+        style.configure(
+            "Fluent.TEntry",
+            fieldbackground="white",
+            borderwidth=2,
+            bordercolor=colors['border'],
+            focuscolor=colors['primary'],
+            font=('Segoe UI', 10, 'normal'),
+            padding=(12, 8)
         )
 
     def create_widgets(self):
         # Main container
-        main_container = tk.Frame(self.root, bg="#f3f2f1")
+        main_container = tk.Frame(self.root, bg="#f9f9f9")
         main_container.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Header
-        self.create_header(main_container)
+        self.create_simple_header(main_container)
 
         # Status section
-        self.create_status_section(main_container)
+        self.create_simple_status_section(main_container)
 
         # Main content area
-        content_frame = tk.Frame(main_container, bg="#f3f2f1")
+        content_frame = tk.Frame(main_container, bg="#f9f9f9")
         content_frame.pack(fill="both", expand=True, pady=(20, 0))
 
-        # Right panel - Monitored areas (switched for RTL)
-        self.create_monitored_areas_panel(content_frame)
+        # Create content panels
+        self.create_simple_monitored_areas_panel(content_frame)
+        self.create_simple_add_areas_panel(content_frame)
 
-        # Left panel - Add areas (switched for RTL)
-        self.create_add_areas_panel(content_frame)
+        # Bottom panel
+        self.create_simple_settings_panel(main_container)
 
-        # Bottom panel - Settings
-        self.create_settings_panel(main_container)
+    def create_card_frame(self, parent, side=None):
+        """Create a card-like frame with Fluent UI styling"""
+        card = tk.Frame(parent, bg="white", relief="solid", bd=1)
+        
+        # Add subtle shadow effect with nested frames using valid tkinter colors
+        shadow_frame = tk.Frame(parent, bg="#f0f0f0", relief="flat", bd=0)
+        if side:
+            shadow_frame.pack(side=side, fill="both", expand=True, padx=(12, 0) if side=="right" else (0, 12), pady=2)
+            card.pack(in_=shadow_frame, fill="both", expand=True, padx=3, pady=3)
+        else:
+            shadow_frame.pack(fill="x", pady=(0, 2))
+            card.pack(in_=shadow_frame, fill="both", expand=True, padx=3, pady=3)
+        
+        return card
 
-    def create_header(self, parent):
-        header_frame = tk.Frame(parent, bg="#f3f2f1")
+    def create_simple_header(self, parent):
+        # Header frame
+        header_frame = tk.Frame(parent, bg="white", relief="solid", bd=1)
         header_frame.pack(fill="x", pady=(0, 20))
 
+        header_inner = tk.Frame(header_frame, bg="white")
+        header_inner.pack(fill="x", padx=20, pady=15)
+
+        # Title
         title_label = tk.Label(
-            header_frame,
+            header_inner,
             text="🚨 מערכת התרעות אזעקה אדומה",
-            font=("Arial", 24, "bold"),
-            bg="#f3f2f1",
-            fg="#323130",
+            font=('Arial', 18, 'bold'),
+            bg="white",
+            fg="#000000",
             justify="right"
         )
         title_label.pack(side="right")
 
         # Monitor toggle button
         self.monitor_button = ttk.Button(
-            header_frame,
+            header_inner,
             textvariable=self.monitor_button_text,
-            style="Modern.TButton",
+            style="FluentPrimary.TButton",
             command=self.toggle_monitoring,
         )
-        self.monitor_button.pack(side="left", padx=(0, 10))
+        self.monitor_button.pack(side="left")
 
-    def create_status_section(self, parent):
+    def create_simple_status_section(self, parent):
         status_frame = tk.Frame(parent, bg="white", relief="solid", bd=1)
         status_frame.pack(fill="x", pady=(0, 10))
 
@@ -157,23 +241,23 @@ class ModernRedAlertGUI:
         tk.Label(
             status_inner,
             text="מצב נוכחי:",
-            font=("Arial", 12, "bold"),
+            font=('Arial', 12, 'bold'),
             bg="white",
-            fg="#323130",
+            fg="#000000",
             justify="right"
         ).pack(side="right")
 
         self.status_label = tk.Label(
             status_inner,
             textvariable=self.status_var,
-            font=("Arial", 12),
+            font=('Arial', 12, 'normal'),
             bg="white",
             fg="#107c10",
             justify="right"
         )
         self.status_label.pack(side="right", padx=(0, 10))
 
-    def create_monitored_areas_panel(self, parent):
+    def create_simple_monitored_areas_panel(self, parent):
         right_frame = tk.Frame(parent, bg="white", relief="solid", bd=1)
         right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
@@ -183,10 +267,10 @@ class ModernRedAlertGUI:
 
         tk.Label(
             header,
-            text="אזורים מנוטרים",
-            font=("Arial", 14, "bold"),
+            text="📍 אזורים מנוטרים",
+            font=('Arial', 14, 'bold'),
             bg="white",
-            fg="#323130",
+            fg="#000000",
             justify="right"
         ).pack(side="right")
 
@@ -200,12 +284,12 @@ class ModernRedAlertGUI:
         self.monitored_listbox = tk.Listbox(
             list_frame,
             yscrollcommand=scrollbar.set,
-            font=("Arial", 10),
+            font=('Arial', 10, 'normal'),
             bg="#fafafa",
-            fg="#323130",
+            fg="#000000",
             selectbackground="#0078d4",
             selectforeground="white",
-            bd=0,
+            bd=1,
             highlightthickness=1,
             highlightcolor="#0078d4",
             justify="right"
@@ -220,13 +304,13 @@ class ModernRedAlertGUI:
         # Remove button
         remove_btn = ttk.Button(
             right_frame,
-            text="הסר נבחר",
+            text="🗑️ הסר נבחר",
             command=self.remove_area,
-            style="Settings.TButton",
+            style="FluentSecondary.TButton",
         )
         remove_btn.pack(pady=(0, 15))
 
-    def create_add_areas_panel(self, parent):
+    def create_simple_add_areas_panel(self, parent):
         left_frame = tk.Frame(parent, bg="white", relief="solid", bd=1)
         left_frame.pack(side="left", fill="both", expand=True)
 
@@ -236,10 +320,10 @@ class ModernRedAlertGUI:
 
         tk.Label(
             header,
-            text="הוסף אזורים",
-            font=("Arial", 14, "bold"),
+            text="➕ הוסף אזורים",
+            font=('Arial', 14, 'bold'),
             bg="white",
-            fg="#323130",
+            fg="#000000",
             justify="right"
         ).pack(side="right")
 
@@ -250,7 +334,7 @@ class ModernRedAlertGUI:
         search_entry = tk.Entry(
             search_frame,
             textvariable=self.search_var,
-            font=("Arial", 10),
+            font=('Arial', 10, 'normal'),
             bg="#fafafa",
             relief="solid",
             bd=1,
@@ -262,9 +346,9 @@ class ModernRedAlertGUI:
         tk.Label(
             search_frame,
             text="חיפוש:",
-            font=("Arial", 10),
+            font=('Arial', 10, 'normal'),
             bg="white",
-            fg="#323130",
+            fg="#000000",
             justify="right"
         ).pack(side="right")
 
@@ -278,12 +362,12 @@ class ModernRedAlertGUI:
         self.available_listbox = tk.Listbox(
             list_frame,
             yscrollcommand=scrollbar2.set,
-            font=("Arial", 10),
+            font=('Arial', 10, 'normal'),
             bg="#fafafa",
-            fg="#323130",
+            fg="#000000",
             selectbackground="#0078d4",
             selectforeground="white",
-            bd=0,
+            bd=1,
             highlightthickness=1,
             highlightcolor="#0078d4",
             justify="right"
@@ -296,25 +380,25 @@ class ModernRedAlertGUI:
         # Add button
         add_btn = ttk.Button(
             left_frame,
-            text="הוסף נבחר",
+            text="➕ הוסף נבחר",
             command=self.add_area,
-            style="Modern.TButton",
+            style="FluentPrimary.TButton",
         )
         add_btn.pack(pady=(0, 15))
 
-    def create_settings_panel(self, parent):
+    def create_simple_settings_panel(self, parent):
         settings_frame = tk.Frame(parent, bg="white", relief="solid", bd=1)
         settings_frame.pack(fill="x", pady=(20, 0))
 
         settings_inner = tk.Frame(settings_frame, bg="white")
         settings_inner.pack(fill="x", padx=20, pady=15)
 
-        # Exit button (moved to left for RTL)
+        # Exit button (left for RTL)
         exit_btn = ttk.Button(
             settings_inner,
-            text="יציאה",
+            text="❌ יציאה",
             command=self.root.quit,
-            style="Settings.TButton",
+            style="FluentSecondary.TButton",
         )
         exit_btn.pack(side="left")
 
@@ -330,19 +414,19 @@ class ModernRedAlertGUI:
 
         tk.Label(
             settings_inner,
-            text="קול הודעה:",
-            font=("Arial", 10),
+            text="🔊 קול הודעה:",
+            font=('Arial', 10, 'normal'),
             bg="white",
-            fg="#323130",
+            fg="#000000",
             justify="right"
         ).pack(side="right", padx=(5, 30))
 
         tk.Label(
             settings_inner,
-            text="הגדרות",
-            font=("Arial", 12, "bold"),
+            text="⚙️ הגדרות",
+            font=('Arial', 12, 'bold'),
             bg="white",
-            fg="#323130",
+            fg="#000000",
             justify="right"
         ).pack(side="right")
 
@@ -383,8 +467,8 @@ class ModernRedAlertGUI:
 
     def start_monitoring(self):
         self.is_monitoring = True
-        self.monitor_button_text.set("עצור ניטור")
-        self.monitor_button.configure(style="Stop.TButton")
+        self.monitor_button_text.set("⏹️ עצור ניטור")
+        self.monitor_button.configure(style="FluentDanger.TButton")
         self.monitoring_thread = threading.Thread(
             target=self.monitor_alerts, daemon=True
         )
@@ -392,8 +476,8 @@ class ModernRedAlertGUI:
 
     def stop_monitoring(self):
         self.is_monitoring = False
-        self.monitor_button_text.set("הפעל ניטור")
-        self.monitor_button.configure(style="Modern.TButton")
+        self.monitor_button_text.set("▶️ הפעל ניטור")
+        self.monitor_button.configure(style="FluentPrimary.TButton")
         self.status_var.set("🟢 אין התרעות כרגע")
         self.status_label.configure(fg="#107c10")
 
@@ -469,22 +553,28 @@ class ModernRedAlertGUI:
     def show_toast_notification(self, title, areas):
         toast = tk.Toplevel(self.root)
         toast.title("אזעקה אדומה")
-        toast.geometry("400x120")
+        toast.geometry("450x140")
         toast.configure(bg="#d13438")
         toast.attributes("-topmost", True)
+        
+        # Apply Fluent UI styling to toast
+        try:
+            toast.attributes('-alpha', 0.95)
+        except:
+            pass
 
         # Position toast at top-right of screen
         screen_width = toast.winfo_screenwidth()
-        toast.geometry(f"400x120+{screen_width-420}+20")
+        toast.geometry(f"450x140+{screen_width-470}+20")
 
-        # Toast content
-        toast_frame = tk.Frame(toast, bg="#d13438", padx=20, pady=15)
+        # Toast content with modern styling
+        toast_frame = tk.Frame(toast, bg="#d13438", padx=24, pady=20)
         toast_frame.pack(fill="both", expand=True)
 
         tk.Label(
             toast_frame,
             text="🚨 אזעקה אדומה",
-            font=("Arial", 14, "bold"),
+            font=('Segoe UI', 16, 'bold'),
             bg="#d13438",
             fg="white",
             justify="right"
@@ -493,21 +583,21 @@ class ModernRedAlertGUI:
         tk.Label(
             toast_frame,
             text=f"{title}",
-            font=("Arial", 12),
+            font=('Segoe UI', 13, 'normal'),
             bg="#d13438",
             fg="white",
             justify="right"
-        ).pack(pady=(5, 0))
+        ).pack(pady=(8, 0))
 
         tk.Label(
             toast_frame,
             text=f"אזורים: {areas}",
-            font=("Arial", 10),
+            font=('Segoe UI', 11, 'normal'),
             bg="#d13438",
             fg="white",
-            wraplength=350,
+            wraplength=400,
             justify="right"
-        ).pack(pady=(5, 0))
+        ).pack(pady=(8, 0))
 
         # Auto-close toast after 10 seconds
         toast.after(10000, toast.destroy)
