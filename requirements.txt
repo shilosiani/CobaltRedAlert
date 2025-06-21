@@ -1,2 +1,4 @@
 requests
 pytz
+pygame
+# plyer
