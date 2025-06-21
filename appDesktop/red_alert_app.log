@@ -1,9 +1,0 @@
-2025-06-21 06:43:38,986 - alert_engine - INFO - 🚀 Enhanced Alert Engine initialized with Rocket Alert API
-2025-06-21 06:43:40,660 - root - WARNING - The style 'Fusion' does not exist.
-2025-06-21 06:43:41,589 - __main__ - INFO - 🚨 Enhanced Red Alert Desktop App initialized successfully!
-2025-06-21 06:44:51,421 - __main__ - INFO - 🚪 Quitting application...
-2025-06-21 06:44:51,422 - __main__ - WARNING - ❌ API Connection lost
-2025-06-21 06:44:51,500 - __main__ - INFO - Status: 🔴 מנותק מ-API
-2025-06-21 06:44:51,502 - alert_engine - WARNING - ❌ Disconnected from Rocket Alert API
-2025-06-21 06:44:51,507 - rocket_api_bridge - INFO - 🛑 API bridge stopped
-2025-06-21 06:44:51,515 - __main__ - INFO - ✅ Cleanup completed
