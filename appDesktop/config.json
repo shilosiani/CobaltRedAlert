@@ -1,0 +1,26 @@
+{
+  "monitored_cities": [
+    "בני ברק",
+    "ראשון לציון"
+  ],
+  "tts_voice": "he-IL-AvriNeural",
+  "alert_sound_url": "https://cdn.pixabay.com/audio/2025/03/05/audio_3f481e8b25.mp3",
+  "volume": 0.8,
+  "check_interval": 3,
+  "alert_pause_time": 25,
+  "notifications_enabled": true,
+  "tts_enabled": true,
+  "sound_enabled": true,
+  "autorun": false,
+  "language": "he",
+  "window_position": {
+    "x": 1920,
+    "y": -8
+  },
+  "window_size": {
+    "width": 1920,
+    "height": 1009
+  },
+  "minimize_to_tray": true,
+  "close_to_tray": true
+}
