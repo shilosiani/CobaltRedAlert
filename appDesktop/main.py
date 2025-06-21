@@ -56,6 +56,7 @@ class RedAlertApp(QObject):
         self.main_window.monitoring_toggled.connect(self.toggle_monitoring)
         self.main_window.test_sound_requested.connect(self.test_sound)
         self.main_window.test_notification_requested.connect(self.test_notification)
+        self.main_window.test_tts_requested.connect(self.test_tts)
         self.main_window.settings_changed.connect(self.on_settings_changed)
         
         # TTS Manager signals
@@ -170,6 +171,15 @@ class RedAlertApp(QObject):
         """Test notification system"""
         print("Testing notification system...")
         self.notification_manager.test_notification()
+    
+    def test_tts(self):
+        """Test TTS system"""
+        print("Testing TTS system...")
+        if self.tts_manager.is_enabled():
+            test_message = "זוהי בדיקת מערכת קול של התרעת צבע אדום"
+            self.tts_manager.generate_tts([test_message], use_random_voice=False)
+        else:
+            print("TTS is disabled")
     
     def on_settings_changed(self, setting_name, value):
         """Handle settings changes from main window"""

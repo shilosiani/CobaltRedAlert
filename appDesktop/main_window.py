@@ -74,11 +74,11 @@ class AnimatedStatusWidget(QFrame):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setup_ui()
         self.current_status = "stopped"
-        self.setup_animations()
         self.pulse_timer = QTimer()
         self.pulse_timer.timeout.connect(self.pulse_animation)
+        self.setup_animations()
+        self.setup_ui()
     
     def setup_ui(self):
         """Set up the enhanced status widget UI"""
@@ -816,6 +816,7 @@ class MainWindow(QMainWindow):
     settings_changed = pyqtSignal(str, object)
     test_sound_requested = pyqtSignal()
     test_notification_requested = pyqtSignal()
+    test_tts_requested = pyqtSignal()
     
     def __init__(self, config_manager):
         super().__init__()
@@ -1773,6 +1774,7 @@ class MainWindow(QMainWindow):
         """Test system with visual feedback"""
         self.test_sound_requested.emit()
         self.test_notification_requested.emit()
+        self.test_tts_requested.emit()
         self.status_bar_label.setText("Testing system...")
         QTimer.singleShot(3000, lambda: self.status_bar_label.setText("Test completed"))
     
