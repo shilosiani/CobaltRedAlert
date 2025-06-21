@@ -4,4 +4,3 @@ pygame
 edge-tts
 PyQt6
 plyer
-qt-material
