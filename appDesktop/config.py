@@ -8,21 +8,56 @@ class ConfigManager:
     def __init__(self, config_file: str = "config.json"):
         self.config_file = config_file
         self.default_config = {
-            "monitored_cities": ["בני ברק", "תל אביב - מרכז העיר"],
+            # City monitoring
+            "monitored_cities": ["בני ברק", "מודיעין עילית"],
+            
+            # Audio settings
             "tts_voice": "he-IL-HilaNeural",
-            "alert_sound_url": "https://cdn.pixabay.com/audio/2025/03/05/audio_3f481e8b25.mp3",
+            "tts_enabled": True,
+            "tts_speed": 1.0,
+            "random_voice": False,
+            "sound_enabled": True,
             "volume": 0.8,
+            "alert_sound_file": "",
+            
+            # Monitoring settings
             "check_interval": 3,
             "alert_pause_time": 25,
+            "auto_start_monitoring": False,
+            "connection_timeout": 10,
+            "max_retries": 3,
+            "priority_monitoring": True,
+            "alert_level_filter": "All Alerts",
+            "prevent_duplicates": True,
+            
+            # Notification settings
             "notifications_enabled": True,
-            "tts_enabled": True,
-            "sound_enabled": True,
-            "autorun": False,
+            "notification_duration": 5,
+            
+            # Interface settings
+            "theme": "Light Blue",
+            "font_size": 11,
             "language": "he",
-            "window_position": {"x": 100, "y": 100},
-            "window_size": {"width": 600, "height": 500},
             "minimize_to_tray": True,
-            "close_to_tray": True
+            "close_to_tray": True,
+            "start_minimized": False,
+            "always_on_top": False,
+            "high_contrast": False,
+            "large_fonts": False,
+            
+            # Window settings
+            "window_position": {"x": 100, "y": 100},
+            "window_size": {"width": 800, "height": 600},
+            
+            # Advanced settings
+            "data_retention_days": 30,
+            "auto_backup": True,
+            "log_level": "INFO",
+            "log_to_file": True,
+            
+            # Legacy
+            "autorun": False,
+            "alert_sound_url": "https://cdn.pixabay.com/audio/2025/03/05/audio_3f481e8b25.mp3"
         }
         self.config = self.load_config()
     
