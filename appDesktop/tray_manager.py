@@ -2,6 +2,12 @@ import sys
 from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import QObject, pyqtSignal
+import requests
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import QApplication, QSystemTrayIcon
+import sys
+
+app = QApplication(sys.argv)
 
 class TrayManager(QObject):
     """Manages system tray icon and menu"""
@@ -105,13 +111,16 @@ class TrayManager(QObject):
             return
         
         try:
-            # For now, we'll use a simple approach with text
-            # In a production app, you'd want to use proper icon files
-            # This is a simplified version that works across platforms
-            
-            # Create a simple icon from text (this is a basic implementation)
-            # You should replace this with proper icon files (.ico, .png)
-            icon = QIcon()  # Empty icon for now
+
+            url = "https://icons.iconarchive.com/icons/graphicloads/100-flat-2/256/arrow-down-icon.png"
+            response = requests.get(url)    
+            if response.status_code == 200:
+                pixmap = QPixmap()
+                pixmap.loadFromData(response.content)
+                icon = QIcon(pixmap)  # Empty icon for now
+            else:
+                icon = QIcon()  # Empty icon for now
+                
             self.tray_icon.setIcon(icon)
             
         except Exception as e:
@@ -122,15 +131,26 @@ class TrayManager(QObject):
         if self.tray_icon and self.tray_icon.supportsMessages():
             self.tray_icon.showMessage(title, message, icon, timeout)
     
-    def show_alert_message(self, title: str, cities: list):
+    def show_alert_message(self, title: str, cities: list, priority: int = 1):
         """Show alert message in tray"""
         message = f"Alert in: {', '.join(cities)}"
+        if priority >= 3:
+            message = f"🔴 HIGH PRIORITY: {message}"
+        
         self.show_message(
             title=f"🚨 {title}",
             message=message,
             icon=QSystemTrayIcon.MessageIcon.Critical,
-            timeout=10000
+            timeout=15000 if priority >= 3 else 10000
         )
+    
+    def update_tooltip(self, status: str):
+        """Update tray icon tooltip with current status"""
+        if self.tray_icon:
+            # Clean status text for tooltip
+            clean_status = status.replace("🟢", "").replace("🟡", "").replace("🔴", "").replace("🚨", "").strip()
+            tooltip = f"Red Alert Monitor - {clean_status}"
+            self.tray_icon.setToolTip(tooltip)
     
     def show_status_message(self, message: str):
         """Show status message in tray"""

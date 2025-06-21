@@ -2,12 +2,12 @@
   "monitored_cities": [
     "בני ברק"
   ],
-  "tts_voice": "he-IL-HilaNeural",
+  "tts_voice": "he-IL-AvriNeural",
   "tts_enabled": true,
   "tts_speed": 2.0,
   "random_voice": false,
   "sound_enabled": true,
-  "volume": 0.18,
+  "volume": 0.28,
   "alert_sound_file": "",
   "check_interval": 1,
   "alert_pause_time": 25,
@@ -29,7 +29,7 @@
   "high_contrast": false,
   "large_fonts": false,
   "window_position": {
-    "x": 1928,
+    "x": 1936,
     "y": -8
   },
   "window_size": {

@@ -364,7 +364,7 @@ async function examples() {
 
 
 
-    
+
     // // Get daily statistics for last 7 days (more reasonable range)
     // console.log('3. Daily statistics for last 7 days:');
     // const weekAgo = new Date();
@@ -432,4 +432,4 @@ if (typeof window !== 'undefined') {
 }
 
 // Auto-run examples when this file is executed directly
-examples(); 
+// examples(); // Commented out for production use 

@@ -137,6 +137,12 @@ class AnimatedStatusWidget(QFrame):
         self.alert_count.setStyleSheet("color: #888;")
         stats_layout.addWidget(self.alert_count)
         
+        # API status
+        self.api_status = QLabel("API: Connecting...")
+        self.api_status.setFont(QFont("Arial", 10))
+        self.api_status.setStyleSheet("color: #888;")
+        stats_layout.addWidget(self.api_status)
+        
         layout.addLayout(stats_layout)
         
         self.set_status("stopped")
@@ -922,6 +928,9 @@ class MainWindow(QMainWindow):
         # History tab
         self.create_enhanced_history_tab()
         
+        # API Statistics tab (new)
+        self.create_api_statistics_tab()
+        
         parent_layout.addWidget(self.tab_widget)
     
     def create_enhanced_settings_tab(self):
@@ -1518,6 +1527,278 @@ class MainWindow(QMainWindow):
             self.history_tree.addTopLevelItem(placeholder_item)
         
         self.tab_widget.addTab(history_widget, "📜 History")
+    
+    def create_api_statistics_tab(self):
+        """Create API statistics and performance tab"""
+        stats_widget = QWidget()
+        layout = QVBoxLayout(stats_widget)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(20)
+        
+        # Header
+        header_layout = QHBoxLayout()
+        stats_label = QLabel("📊 API Statistics & Performance")
+        stats_label.setFont(QFont("Arial", 16, QFont.Weight.Bold))
+        header_layout.addWidget(stats_label)
+        
+        header_layout.addStretch()
+        
+        # Refresh button
+        refresh_btn = QPushButton("🔄 Refresh")
+        refresh_btn.clicked.connect(self.refresh_api_stats)
+        header_layout.addWidget(refresh_btn)
+        
+        layout.addLayout(header_layout)
+        
+        # Connection Status Card
+        connection_group = QGroupBox("🌐 API Connection")
+        connection_layout = QGridLayout(connection_group)
+        
+        # Status indicators
+        self.api_status_indicator = QLabel("🔴")
+        self.api_status_indicator.setFont(QFont("Arial", 16))
+        connection_layout.addWidget(QLabel("Status:"), 0, 0)
+        connection_layout.addWidget(self.api_status_indicator, 0, 1)
+        
+        self.api_status_text = QLabel("Disconnected")
+        self.api_status_text.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+        connection_layout.addWidget(self.api_status_text, 0, 2)
+        
+        # Connection details
+        connection_layout.addWidget(QLabel("API Source:"), 1, 0)
+        self.api_source_label = QLabel("Rocket Alert Live API")
+        connection_layout.addWidget(self.api_source_label, 1, 1, 1, 2)
+        
+        connection_layout.addWidget(QLabel("Response Time:"), 2, 0)
+        self.response_time_label = QLabel("--- ms")
+        connection_layout.addWidget(self.response_time_label, 2, 1, 1, 2)
+        
+        connection_layout.addWidget(QLabel("Last Update:"), 3, 0)
+        self.last_update_label = QLabel("Never")
+        connection_layout.addWidget(self.last_update_label, 3, 1, 1, 2)
+        
+        layout.addWidget(connection_group)
+        
+        # Today's Statistics
+        today_group = QGroupBox("📈 Today's Statistics")
+        today_layout = QGridLayout(today_group)
+        
+        # Alert counters
+        today_layout.addWidget(QLabel("Total Alerts:"), 0, 0)
+        self.total_alerts_label = QLabel("0")
+        self.total_alerts_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        self.total_alerts_label.setStyleSheet("color: #f44336;")
+        today_layout.addWidget(self.total_alerts_label, 0, 1)
+        
+        today_layout.addWidget(QLabel("Monitored Areas:"), 1, 0)
+        self.monitored_alerts_label = QLabel("0")
+        self.monitored_alerts_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        self.monitored_alerts_label.setStyleSheet("color: #ff9800;")
+        today_layout.addWidget(self.monitored_alerts_label, 1, 1)
+        
+        today_layout.addWidget(QLabel("High Priority:"), 2, 0)
+        self.high_priority_label = QLabel("0")
+        self.high_priority_label.setFont(QFont("Arial", 14, QFont.Weight.Bold))
+        self.high_priority_label.setStyleSheet("color: #9c27b0;")
+        today_layout.addWidget(self.high_priority_label, 2, 1)
+        
+        # Recent activity
+        today_layout.addWidget(QLabel("Most Recent:"), 0, 2)
+        self.recent_alert_label = QLabel("No alerts")
+        today_layout.addWidget(self.recent_alert_label, 0, 3)
+        
+        today_layout.addWidget(QLabel("Most Active Area:"), 1, 2)
+        self.active_area_label = QLabel("---")
+        today_layout.addWidget(self.active_area_label, 1, 3)
+        
+        today_layout.addWidget(QLabel("Peak Hour:"), 2, 2)
+        self.peak_hour_label = QLabel("---")
+        today_layout.addWidget(self.peak_hour_label, 2, 3)
+        
+        layout.addWidget(today_group)
+        
+        # Most Targeted Locations (Real-time from API)
+        locations_group = QGroupBox("🎯 Most Targeted Locations (Live)")
+        locations_layout = QVBoxLayout(locations_group)
+        
+        self.locations_list = QListWidget()
+        self.locations_list.setMaximumHeight(150)
+        self.locations_list.setFont(HebrewTextHelper.setup_hebrew_font())
+        locations_layout.addWidget(self.locations_list)
+        
+        layout.addWidget(locations_group)
+        
+        # Performance Metrics
+        performance_group = QGroupBox("⚡ Performance Metrics")
+        performance_layout = QGridLayout(performance_group)
+        
+        performance_layout.addWidget(QLabel("API Calls Today:"), 0, 0)
+        self.api_calls_label = QLabel("0")
+        performance_layout.addWidget(self.api_calls_label, 0, 1)
+        
+        performance_layout.addWidget(QLabel("Success Rate:"), 1, 0)
+        self.success_rate_label = QLabel("100%")
+        performance_layout.addWidget(self.success_rate_label, 1, 1)
+        
+        performance_layout.addWidget(QLabel("Avg Response:"), 2, 0)
+        self.avg_response_label = QLabel("--- ms")
+        performance_layout.addWidget(self.avg_response_label, 2, 1)
+        
+        performance_layout.addWidget(QLabel("Data Usage:"), 0, 2)
+        self.data_usage_label = QLabel("--- KB")
+        performance_layout.addWidget(self.data_usage_label, 0, 3)
+        
+        performance_layout.addWidget(QLabel("Uptime:"), 1, 2)
+        self.uptime_label = QLabel("---")
+        performance_layout.addWidget(self.uptime_label, 1, 3)
+        
+        performance_layout.addWidget(QLabel("Node.js Status:"), 2, 2)
+        self.nodejs_status_label = QLabel("Unknown")
+        performance_layout.addWidget(self.nodejs_status_label, 2, 3)
+        
+        layout.addWidget(performance_group)
+        
+        # API Actions
+        actions_group = QGroupBox("🔧 API Actions")
+        actions_layout = QHBoxLayout(actions_group)
+        
+        force_check_btn = QPushButton("🔍 Force Check")
+        force_check_btn.setToolTip("Force immediate alert check")
+        force_check_btn.clicked.connect(self.force_api_check)
+        actions_layout.addWidget(force_check_btn)
+        
+        get_stats_btn = QPushButton("📊 Get Daily Stats")
+        get_stats_btn.setToolTip("Fetch today's alert statistics")
+        get_stats_btn.clicked.connect(self.get_daily_stats)
+        actions_layout.addWidget(get_stats_btn)
+        
+        get_locations_btn = QPushButton("🎯 Update Locations")
+        get_locations_btn.setToolTip("Get most targeted locations")
+        get_locations_btn.clicked.connect(self.get_targeted_locations)
+        actions_layout.addWidget(get_locations_btn)
+        
+        actions_layout.addStretch()
+        
+        layout.addWidget(actions_group)
+        
+        layout.addStretch()
+        
+        # Auto-refresh timer
+        self.api_stats_timer = QTimer()
+        self.api_stats_timer.timeout.connect(self.refresh_api_stats)
+        self.api_stats_timer.start(30000)  # Refresh every 30 seconds
+        
+        self.tab_widget.addTab(stats_widget, "📊 API Stats")
+    
+    def refresh_api_stats(self):
+        """Refresh API statistics display"""
+        try:
+            # This would be called by the alert engine when stats are updated
+            import datetime
+            self.last_update_label.setText(datetime.datetime.now().strftime("%H:%M:%S"))
+            
+            # Update placeholder data (will be replaced by real data from API)
+            if hasattr(self, 'alert_engine'):
+                stats = getattr(self.alert_engine, 'get_api_stats', lambda: {})()
+                
+                if stats.get('connected', False):
+                    self.api_status_indicator.setText("🟢")
+                    self.api_status_text.setText("Connected")
+                    self.api_status_text.setStyleSheet("color: #4caf50; font-weight: bold;")
+                    self.nodejs_status_label.setText("Running")
+                else:
+                    self.api_status_indicator.setText("🔴")
+                    self.api_status_text.setText("Disconnected")
+                    self.api_status_text.setStyleSheet("color: #f44336; font-weight: bold;")
+                    self.nodejs_status_label.setText("Stopped")
+                
+                # Update alert counts
+                total_today = stats.get('total_alerts_today', 0)
+                self.total_alerts_label.setText(str(total_today))
+                
+        except Exception as e:
+            print(f"Error refreshing API stats: {e}")
+    
+    def force_api_check(self):
+        """Force immediate API check"""
+        try:
+            if hasattr(self, 'alert_engine') and hasattr(self.alert_engine, 'force_check'):
+                self.alert_engine.force_check()
+                QMessageBox.information(self, "Force Check", "Immediate alert check initiated")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to force check: {e}")
+    
+    def get_daily_stats(self):
+        """Get daily statistics from API"""
+        try:
+            if hasattr(self, 'alert_engine') and hasattr(self.alert_engine, 'api_bridge'):
+                self.alert_engine.api_bridge.get_daily_stats()
+                QMessageBox.information(self, "Daily Stats", "Fetching daily statistics...")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to get daily stats: {e}")
+    
+    def get_targeted_locations(self):
+        """Get most targeted locations from API"""
+        try:
+            if hasattr(self, 'alert_engine') and hasattr(self.alert_engine, 'api_bridge'):
+                self.alert_engine.api_bridge.get_most_targeted_locations(10)
+                QMessageBox.information(self, "Targeted Locations", "Fetching most targeted locations...")
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to get targeted locations: {e}")
+    
+    def update_api_connection_status(self, connected: bool, ping_ms: int = 0):
+        """Update API connection status in the stats tab"""
+        try:
+            if connected:
+                self.api_status_indicator.setText("🟢")
+                self.api_status_text.setText("Connected")
+                self.api_status_text.setStyleSheet("color: #4caf50; font-weight: bold;")
+                if ping_ms > 0:
+                    self.response_time_label.setText(f"{ping_ms} ms")
+            else:
+                self.api_status_indicator.setText("🔴")
+                self.api_status_text.setText("Disconnected")
+                self.api_status_text.setStyleSheet("color: #f44336; font-weight: bold;")
+                self.response_time_label.setText("--- ms")
+            
+            # Also update the status widget connection
+            if hasattr(self, 'status_widget'):
+                self.status_widget.update_connection_status(connected, ping_ms)
+                
+        except Exception as e:
+            print(f"Error updating API connection status: {e}")
+    
+    def update_api_statistics(self, stats_data: Dict[str, Any]):
+        """Update API statistics with real data"""
+        try:
+            # Update connection info
+            if 'api_status' in stats_data:
+                self.update_api_connection_status(stats_data['api_status'].get('connected', False))
+            
+            # Update today's stats
+            if 'daily_stats' in stats_data:
+                daily = stats_data['daily_stats']
+                self.total_alerts_label.setText(str(daily.get('total_alerts', 0)))
+                self.monitored_alerts_label.setText(str(daily.get('monitored_alerts', 0)))
+                self.high_priority_label.setText(str(daily.get('high_priority', 0)))
+            
+            # Update most targeted locations
+            if 'targeted_locations' in stats_data:
+                self.locations_list.clear()
+                for location in stats_data['targeted_locations'][:10]:
+                    item_text = f"{location.get('name', 'Unknown')} ({location.get('count', 0)} alerts)"
+                    self.locations_list.addItem(item_text)
+            
+            # Update performance metrics
+            if 'performance' in stats_data:
+                perf = stats_data['performance']
+                self.api_calls_label.setText(str(perf.get('api_calls', 0)))
+                self.success_rate_label.setText(f"{perf.get('success_rate', 100):.1f}%")
+                self.avg_response_label.setText(f"{perf.get('avg_response', 0)} ms")
+                self.data_usage_label.setText(f"{perf.get('data_usage', 0):.1f} KB")
+                
+        except Exception as e:
+            print(f"Error updating API statistics: {e}")
     
     def create_bottom_toolbar(self, parent_layout):
         """Create bottom status toolbar"""
